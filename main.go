@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/loggercode/ecom/auth"
 	"github.com/loggercode/ecom/database"
 )
 
@@ -59,6 +60,66 @@ func ItemHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(item)
 }
+
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	var user database.UserCredential
+
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	fulluser, err := user.VerifyUser()
+	if err != nil {
+		// TODO handle err with the appropiriate response
+		log.Println("Wrong login credentilas")
+		return
+	}
+
+	token, err := auth.GenerateJWTTokken(user.Username, fulluser.Uuid)
+	if err != nil {
+		// TODO : handle error
+		log.Fatal(err)
+	}
+
+	response := map[string]interface{}{
+		"token": token,
+		"uuid":  fulluser.Uuid,
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(response)
+}
+
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	var user database.User
+	var err error
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		log.Println(err)
+		return
+	}
+
+	if err = user.CreateUser(); err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	token, err := auth.GenerateJWTTokken(user.Username, user.Uuid)
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	tokenresponse := map[string]string{
+		"token": token,
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(tokenresponse)
+}
+
 func main() {
 	flag.Parse()
 
@@ -69,6 +130,10 @@ func main() {
 	r.HandleFunc("/api", ItemsHandler).Methods("GET")
 	r.HandleFunc("/api", AddItemHandler).Methods("POST")
 	r.HandleFunc("/api/item/{itemid}", ItemHandler)
+
+	// Login
+	r.HandleFunc("/api/login", LoginHandler)
+	r.HandleFunc("/api/register", RegisterHandler)
 	srv := &http.Server{
 		Handler: r,
 		Addr:    "0.0.0.0:9200",

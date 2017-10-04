@@ -1,7 +1,7 @@
 package database
 
 // Item describe a ecom
-type Item struct {
+type Itemstruct struct {
 	Id          int     `json:"id"`
 	Uuid        string  `json:"uuid"`
 	Name        string  `json:"name"`
@@ -42,13 +42,4 @@ type Category struct {
 	ID          int
 	Name        string
 	Description string
-}
-
-type Customer struct {
-	Id          int
-	Uuid        string
-	Name        string
-	PhoneNumber string
-	Email       string
-	Town        string
 }

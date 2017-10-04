@@ -17,7 +17,9 @@ func InitDB() {
 	}
 	// Create tables
 	_, err = DB.Exec(`create table if not exists items(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,uuid varchar(255) NOT NULL unique , name varchar(255) unique, photoid varchar(255), description varchar(255), price decimal default 0.0);`)
+	_, err = DB.Exec(`create table if not exists users(id int NOT NULL AUTO_INCREMENT PRIMARY KEY , uuid varchar(255) NOT NULL unique, username varchar(255) unique NOT NULL, location varchar(255) NOT NULL, phonenumber varchar(100) unique NOT NULL, email varchar(100),password_hash varchar(255) NOT NULL, joined_on datetime default CURRENT_TIMESTAMP);`)
+
 	if err != nil {
-		log.Fatal("Error creation table table : ", err)
+		log.Fatal("Error creating table : ", err)
 	}
 }
