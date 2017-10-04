@@ -9,9 +9,10 @@ import (
 	uuid "github.com/nu7hatch/gouuid"
 )
 
+// User ...
 type User struct {
-	Id           int64  `json:"id"`
-	Uuid         string `json:"uuid"`
+	ID           int64  `json:"id"`
+	UUID         string `json:"uuid"`
 	Fisrtname    string `json:"firstname"`
 	Lastname     string `json:"lastname"`
 	Username     string `json:"username"`
@@ -32,22 +33,24 @@ func (user *User) CreateUser() (err error) {
 		return
 
 	}
-	password_hash, err := auth.HashPassword(user.Password)
+	passwordhash, err := auth.HashPassword(user.Password)
 	if err != nil {
 		return
 	}
 
-	_, err = DB.Exec(`insert into users(uuid , username,location, phonenumber, email, password_hash ) values(?,?,?,?,?,?)`, u4.String(), user.Username, user.Location, user.PhoneNumber, user.Email, string(password_hash))
+	_, err = DB.Exec(`insert into users(uuid , username,location, phonenumber, email, password_hash ) values(?,?,?,?,?,?)`, u4.String(), user.Username, user.Location, user.PhoneNumber, user.Email, string(passwordhash))
 	return
 }
 
+// UserCredential ...
 type UserCredential struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
+// VerifyUser ...
 func (u *UserCredential) VerifyUser() (user User, err error) {
-	err = DB.QueryRow("select uuid, username, location, phonenumber, password_hash from users where username = ?", u.Username).Scan(&user.Uuid, &user.Username, &user.Location, &user.PhoneNumber, &user.PasswordHash)
+	err = DB.QueryRow("select uuid, username, location, phonenumber, password_hash from users where username = ?", u.Username).Scan(&user.UUID, &user.Username, &user.Location, &user.PhoneNumber, &user.PasswordHash)
 	if err != nil {
 		log.Println(err)
 		return

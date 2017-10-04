@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/loggercode/ecom/auth"
 	"github.com/loggercode/ecom/database"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -19,9 +21,10 @@ func init() {
 	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
 }
 
-func ItemsHandler(w http.ResponseWriter, r *http.Request) {
+// ProductsHandler ...
+func ProductsHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO introduce pagination
-	items, err := database.GetItems()
+	items, err := database.GetProducts()
 	if err != nil {
 		log.Println(err)
 		return
@@ -33,15 +36,16 @@ func ItemsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(responseitems)
 }
 
-func AddItemHandler(w http.ResponseWriter, r *http.Request) {
-	var item database.Item
+// AddProductHandler ....
+func AddProductHandler(w http.ResponseWriter, r *http.Request) {
+	var item database.Product
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
 		log.Println("Error decoding request data: ", err)
 		return
 	}
 
-	err = database.AddItem(item)
+	err = database.AddProduct(item)
 
 	if err != nil {
 		log.Println("Error writing to database: ", err)
@@ -51,16 +55,18 @@ func AddItemHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func ItemHandler(w http.ResponseWriter, r *http.Request) {
+// ProductHandler ...
+func ProductHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	item, err := database.GetItem(vars["itemid"])
+	item, err := database.GetProduct(vars["productid"])
 	if err != nil {
 		return
 	}
 	json.NewEncoder(w).Encode(item)
 }
 
+// LoginHandler ...
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var user database.UserCredential
 
@@ -77,7 +83,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.GenerateJWTTokken(user.Username, fulluser.Uuid)
+	token, err := auth.GenerateJWTTokken(user.Username, fulluser.UUID)
 	if err != nil {
 		// TODO : handle error
 		log.Fatal(err)
@@ -85,13 +91,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]interface{}{
 		"token": token,
-		"uuid":  fulluser.Uuid,
+		"uuid":  fulluser.UUID,
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	json.NewEncoder(w).Encode(response)
 }
 
+// RegisterHandler ...
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user database.User
 	var err error
@@ -106,7 +113,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := auth.GenerateJWTTokken(user.Username, user.Uuid)
+	token, err := auth.GenerateJWTTokken(user.Username, user.UUID)
 
 	if err != nil {
 		log.Println(err)
@@ -127,9 +134,9 @@ func main() {
 	r := mux.NewRouter()
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
-	r.HandleFunc("/api", ItemsHandler).Methods("GET")
-	r.HandleFunc("/api", AddItemHandler).Methods("POST")
-	r.HandleFunc("/api/item/{itemid}", ItemHandler)
+	r.HandleFunc("/api", ProductsHandler).Methods("GET")
+	r.HandleFunc("/api", AddProductHandler).Methods("POST")
+	r.HandleFunc("/api/product/{productid}", ProductHandler)
 
 	// Login
 	r.HandleFunc("/api/login", LoginHandler)

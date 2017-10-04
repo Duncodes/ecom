@@ -16,6 +16,7 @@ const (
 	privateKeyPath = "keys/private_key"
 )
 
+// SignKey ...
 var SignKey []byte
 
 func init() {
@@ -32,6 +33,7 @@ type jwtClaims struct {
 	jwt.StandardClaims
 }
 
+// GenerateJWTTokken ...
 func GenerateJWTTokken(username string, uuid string) (token string, err error) {
 	claims := jwtClaims{
 		username,
@@ -50,12 +52,14 @@ func GenerateJWTTokken(username string, uuid string) (token string, err error) {
 	return token, err
 }
 
+// HashPassword ....
 func HashPassword(password string) (hash []byte, err error) {
 	hash, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return
 }
 
-func CompareHash(password_hash string, password string) (err error) {
-	err = bcrypt.CompareHashAndPassword([]byte(password_hash), []byte(password))
+// CompareHash ...
+func CompareHash(passwordhash string, password string) (err error) {
+	err = bcrypt.CompareHashAndPassword([]byte(passwordhash), []byte(password))
 	return
 }
