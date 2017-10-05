@@ -3,11 +3,13 @@ package auth
 import (
 	"io/ioutil"
 	"log"
+	"net/http"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 )
 
 // RSA keys
@@ -62,4 +64,23 @@ func HashPassword(password string) (hash []byte, err error) {
 func CompareHash(passwordhash string, password string) (err error) {
 	err = bcrypt.CompareHashAndPassword([]byte(passwordhash), []byte(password))
 	return
+}
+
+func signingKeyFn(*jwt.Token) (interface{}, error) {
+	return SignKey, nil
+
+}
+func Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Authentication")
+		token, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor, signingKeyFn)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if token.Valid {
+			next.ServeHTTP(w, r)
+		}
+	})
 }

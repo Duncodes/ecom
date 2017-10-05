@@ -38,7 +38,9 @@ func (user *User) CreateUser() (err error) {
 		return
 	}
 
-	_, err = DB.Exec(`insert into users(uuid , username,location, phonenumber, email, password_hash ) values(?,?,?,?,?,?)`, u4.String(), user.Username, user.Location, user.PhoneNumber, user.Email, string(passwordhash))
+	_, err = DB.Exec(`insert into users(uuid , username,location, phonenumber,
+	email, password_hash ) values(?,?,?,?,?,?)`, u4.String(),
+		user.Username, user.Location, user.PhoneNumber, user.Email, string(passwordhash))
 	return
 }
 
@@ -50,7 +52,9 @@ type UserCredential struct {
 
 // VerifyUser ...
 func (u *UserCredential) VerifyUser() (user User, err error) {
-	err = DB.QueryRow("select uuid, username, location, phonenumber, password_hash from users where username = ?", u.Username).Scan(&user.UUID, &user.Username, &user.Location, &user.PhoneNumber, &user.PasswordHash)
+	err = DB.QueryRow(`select uuid, username, location, phonenumber,
+	password_hash from users where username = ?`, u.Username).Scan(&user.UUID,
+		&user.Username, &user.Location, &user.PhoneNumber, &user.PasswordHash)
 	if err != nil {
 		log.Println(err)
 		return
