@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/loggercode/ecom/auth"
-	uuid "github.com/nu7hatch/gouuid"
+	"github.com/twinj/uuid"
 )
 
 // User ...
@@ -27,7 +27,7 @@ type User struct {
 
 // CreateUser writes the userdetails to the database
 func (user *User) CreateUser() (err error) {
-	u4, err := uuid.NewV4()
+	u4 := uuid.NewV4()
 	if err != nil {
 		fmt.Println("error:", err)
 		return
@@ -37,9 +37,10 @@ func (user *User) CreateUser() (err error) {
 	if err != nil {
 		return
 	}
-
+	log.Println(u4)
+	user.UUID = u4.String()
 	_, err = DB.Exec(`insert into users(uuid , username,location, phonenumber,
-	email, password_hash ) values(?,?,?,?,?,?)`, u4.String(),
+	email, password_hash ) values(?,?,?,?,?,?)`, u4,
 		user.Username, user.Location, user.PhoneNumber, user.Email, string(passwordhash))
 	return
 }

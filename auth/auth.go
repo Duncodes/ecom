@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,10 +13,13 @@ import (
 	"github.com/dgrijalva/jwt-go/request"
 )
 
+type key int
+
 // RSA keys
 const (
-	publicKeyPath  = "keys/public_key.pub"
-	privateKeyPath = "keys/private_key"
+	publicKeyPath      = "keys/public_key.pub"
+	privateKeyPath     = "keys/private_key"
+	ConfigKey      key = iota
 )
 
 // SignKey ...
@@ -30,14 +34,14 @@ func init() {
 	}
 }
 
-type jwtClaims struct {
+type JwtClaims struct {
 	Name string `json:"name"`
 	jwt.StandardClaims
 }
 
 // GenerateJWTTokken ...
 func GenerateJWTTokken(username string, uuid string) (token string, err error) {
-	claims := jwtClaims{
+	claims := JwtClaims{
 		username,
 		jwt.StandardClaims{
 			Id:        uuid,
@@ -70,16 +74,21 @@ func signingKeyFn(*jwt.Token) (interface{}, error) {
 	return SignKey, nil
 
 }
+
+// Authenticate ....
 func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Authentication")
-		token, err := request.ParseFromRequest(r, request.AuthorizationHeaderExtractor, signingKeyFn)
+		var claims JwtClaims
+		token, err := request.ParseFromRequestWithClaims(r, request.AuthorizationHeaderExtractor, &claims, signingKeyFn)
 		if err != nil {
-			log.Println(err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		log.Println(claims)
 		if token.Valid {
+			newCtx := context.WithValue(r.Context(), ConfigKey, claims)
+			r = r.WithContext(newCtx)
 			next.ServeHTTP(w, r)
 		}
 	})

@@ -126,8 +126,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Protected(w http.ResponseWriter, r *http.Request) {
-
-	w.Write([]byte("Welcome to super protected endpoint"))
+	claims := r.Context().Value(auth.ConfigKey).(auth.JwtClaims)
+	log.Println(claims.Name)
+	w.Write([]byte(string(claims.Name) + " Welcome to super protected endpoint your id is " + claims.StandardClaims.Id))
 }
 
 // StartServer ...
