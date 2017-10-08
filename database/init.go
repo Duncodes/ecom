@@ -47,10 +47,11 @@ func InitDB() {
 		log.Panic("Error creating table : ", err)
 	}
 	_, err = DB.Exec(`create table if not exists orders(id int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-					uuid varchar(100) NOT NULL unique , customerid int NOT NULL, paymentid int NOT NULL,
+					uuid varchar(100) NOT NULL unique ,productid int NOT NULL , customerid int NOT NULL, paymentid int NOT NULL,
 					shippingadress varchar(100), paid bool default false, fulfilled bool default false,
-					timestamp datetime default CURRENT_TIMESTAMP, FOREIGN KEY(customerid) REFERENCES users(id) ,
-					FOREIGN KEY(paymentid) REFERENCES payment(id));`)
+					timestamp datetime default CURRENT_TIMESTAMP, price decimal NOT NULL default 0.0,
+					quantity int NOT NULL default 1 , FOREIGN KEY(customerid) REFERENCES users(id) ,
+					FOREIGN KEY(paymentid) REFERENCES payment(id), FOREIGN KEY(productid) REFERENCES products(id));`)
 	if err != nil {
 		log.Panic("Error creating table : ", err)
 	}

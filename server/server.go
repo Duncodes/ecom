@@ -163,16 +163,40 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	*/
 	var cart database.Cart
 	err = json.NewDecoder(r.Body).Decode(&cart)
-
-	//err = json.Unmarshal([]byte(cart), &cart)
 	if err != nil {
 		log.Println(err)
 	}
 
 	fmt.Println(cart)
+	if len(cart.Items) == 0 {
+		log.Println("Provide items to order")
+		return
+	}
+	log.Println(user.ID)
+	order, err := database.AddOrder(user.ID, cart)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(400)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	u, _ := json.Marshal(user)
+	u, _ := json.Marshal(order)
 	w.Write(u)
+}
+
+func CategoryHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		// just return all categories
+		var category database.Category
+		if err := json.NewDecoder(r.Body).Decode(&category); err != nil {
+			log.Println(err)
+			return
+		}
+		if err := category.AddCategory(); err != nil {
+			log.Println(err)
+			return
+		}
+	}
 }
 
 // StartServer ...
@@ -192,6 +216,8 @@ func StartServer() {
 	r.Handle("/api/protected", auth.Authenticate(http.HandlerFunc(Protected)))
 	//r.Handle("/api/{id}/cart", auth.Authenticate(http.HandlerFunc()))
 	r.Handle("/api/order", auth.Authenticate(http.HandlerFunc(PlaceOrder)))
+	// TODO Create an admin auth middleware
+	r.Handle("/api/category", auth.Authenticate(http.HandlerFunc(CategoryHandler)))
 	log.Println("Starting server ......")
 	srv := &http.Server{
 		Handler: r,
