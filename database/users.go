@@ -45,6 +45,15 @@ func (user *User) CreateUser() (err error) {
 	return
 }
 
+func GetUserByUUID(uuid string) (User, error) {
+	var user User
+	err := DB.QueryRow(`select uuid, username, location, phonenumber,
+					password_hash from users where uuid = ?`, uuid).Scan(&user.UUID,
+		&user.Username, &user.Location, &user.PhoneNumber, &user.PasswordHash)
+
+	return user, err
+}
+
 // UserCredential ...
 type UserCredential struct {
 	Username string `json:"username"`

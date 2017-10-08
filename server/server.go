@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -76,8 +77,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	fulluser, err := user.VerifyUser()
 	if err != nil {
-		// TODO handle err with the appropiriate response
+		w.WriteHeader(400)
+
+		response := map[string]interface{}{
+			"error": "Wrong credentials",
+		}
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		log.Println("Wrong login credentilas")
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
@@ -131,6 +139,42 @@ func Protected(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(string(claims.Name) + " Welcome to super protected endpoint your id is " + claims.StandardClaims.Id))
 }
 
+func PlaceOrder(w http.ResponseWriter, r *http.Request) {
+	// Read user claims and get more data about the use
+	claims := r.Context().Value(auth.ConfigKey).(auth.JwtClaims)
+	user, err := database.GetUserByUUID(claims.StandardClaims.Id)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+	// TODO place an order base on the content of the cart
+
+	// READ the content of the cart
+	/*
+		{
+			"items":[
+			{
+				"quantity":1,
+				"productid":1234,
+			}
+			]
+		}
+	*/
+	var cart database.Cart
+	err = json.NewDecoder(r.Body).Decode(&cart)
+
+	//err = json.Unmarshal([]byte(cart), &cart)
+	if err != nil {
+		log.Println(err)
+	}
+
+	fmt.Println(cart)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	u, _ := json.Marshal(user)
+	w.Write(u)
+}
+
 // StartServer ...
 func StartServer() {
 
@@ -146,6 +190,8 @@ func StartServer() {
 	r.HandleFunc("/api/register", RegisterHandler)
 
 	r.Handle("/api/protected", auth.Authenticate(http.HandlerFunc(Protected)))
+	//r.Handle("/api/{id}/cart", auth.Authenticate(http.HandlerFunc()))
+	r.Handle("/api/order", auth.Authenticate(http.HandlerFunc(PlaceOrder)))
 	log.Println("Starting server ......")
 	srv := &http.Server{
 		Handler: r,

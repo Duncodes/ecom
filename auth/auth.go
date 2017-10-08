@@ -82,6 +82,7 @@ func Authenticate(next http.Handler) http.Handler {
 		var claims JwtClaims
 		token, err := request.ParseFromRequestWithClaims(r, request.AuthorizationHeaderExtractor, &claims, signingKeyFn)
 		if err != nil {
+			log.Println(err)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

@@ -15,6 +15,8 @@ func InitDB() {
 	if err != nil {
 		log.Fatal("Error open database ", err)
 	}
+
+	log.Println("Checking and creating tables ....")
 	// Create tables
 	_, err = DB.Exec(`create table if not exists category(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
 					uuid varchar(100) NOT NULL unique , name varchar(100) unique, description text ,
@@ -22,6 +24,7 @@ func InitDB() {
 	if err != nil {
 		log.Fatal("Error creating table : ", err)
 	}
+	// Create producs table
 	_, err = DB.Exec(`create table if not exists products(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
 					uuid varchar(100) NOT NULL unique , name varchar(255) unique, photoid varchar(255),
 					description varchar(255), price decimal default 0.0 , productstock decimal default 0.0,
@@ -30,6 +33,7 @@ func InitDB() {
 	if err != nil {
 		log.Fatal("Error creating table : ", err)
 	}
+	// users ...
 	_, err = DB.Exec(`create table if not exists users(id int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
 					uuid varchar(100) NOT NULL unique, username varchar(255) unique NOT NULL,
 					location varchar(255) NOT NULL, phonenumber varchar(100) unique NOT NULL,

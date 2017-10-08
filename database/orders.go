@@ -35,6 +35,16 @@ type OrderDetails struct {
 	Total     float64 `json:"total"`
 }
 
+type CartItem struct {
+	ProductID int64 `json:"productid"`
+	Quantity  int   `json:"quantity"`
+}
+
+type Cart struct {
+	Items         []CartItem `json:"items"`
+	PaymentMethod int        `json:"paymentid"`
+}
+
 func AddOrder(userid string, productid string, paymentid string, units int64) (err error) {
 
 	return
