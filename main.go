@@ -1,24 +1,18 @@
 package main
 
 import (
-	"flag"
-	"log"
+	"fmt"
+	"os"
 
-	"github.com/Duncodes/ecom/database"
-	"github.com/Duncodes/ecom/econfig"
-	"github.com/Duncodes/ecom/server"
+	"github.com/Duncodes/ecom/cmd"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	flag.Parse()
-	err := econfig.LoadConfig("config.json")
+	// flag.Parse()
 
-	if err != nil {
-		log.Println(err)
+	if err := cmd.RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	log.Println(econfig.Config.Port)
-	database.InitDB()
-	server.StartServer()
 }

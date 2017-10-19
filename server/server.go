@@ -196,8 +196,8 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // StartServer ...
-func StartServer() {
-
+func StartServer(port string) {
+	log.Println(port)
 	r := mux.NewRouter()
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
@@ -217,7 +217,7 @@ func StartServer() {
 	log.Println("Starting server ......")
 	srv := &http.Server{
 		Handler: r,
-		Addr:    "0.0.0.0:9200",
+		Addr:    "0.0.0.0:" + port,
 	}
 
 	log.Fatal(srv.ListenAndServe())

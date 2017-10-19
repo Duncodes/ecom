@@ -3,6 +3,8 @@ package database
 import (
 	"database/sql"
 	"log"
+
+	"github.com/Duncodes/ecom/config"
 )
 
 // DB ...
@@ -11,9 +13,10 @@ var DB *sql.DB
 // InitDB ...
 func InitDB() {
 	var err error
-	DB, err = sql.Open("mysql", "root:duncan@tcp(127.0.0.1:3306)/ecom")
+	dbconnectionstring := config.Config.DatabaseUserName + ":" + config.Config.DatabasePassword + "@tcp(" + config.Config.DatabaseHost + ")/" + config.Config.DatabaseName
+	DB, err = sql.Open("mysql", dbconnectionstring)
 	if err != nil {
-		log.Fatal("Error open database ", err)
+		log.Fatal("Error openning database connection.", err)
 	}
 
 	log.Println("Checking and creating tables ....")
