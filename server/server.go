@@ -104,7 +104,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// RegisterHandler ...
+// RegisterHandler this accepts a user detail of type
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user database.User
 	var err error
@@ -133,12 +133,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tokenresponse)
 }
 
-func Protected(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value(auth.ConfigKey).(auth.JwtClaims)
-	log.Println(claims.Name)
-	w.Write([]byte(string(claims.Name) + " Welcome to super protected endpoint your id is " + claims.StandardClaims.Id))
-}
-
+// PlaceOrder ....
 func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	// Read user claims and get more data about the use
 	claims := r.Context().Value(auth.ConfigKey).(auth.JwtClaims)
@@ -184,6 +179,7 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	w.Write(u)
 }
 
+// CategoryHandler ....
 func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		// just return all categories
@@ -213,7 +209,7 @@ func StartServer() {
 	r.HandleFunc("/api/login", LoginHandler)
 	r.HandleFunc("/api/register", RegisterHandler)
 
-	r.Handle("/api/protected", auth.Authenticate(http.HandlerFunc(Protected)))
+	// r.Handle("/api/protected", auth.Authenticate(http.HandlerFunc(Protected)))
 	//r.Handle("/api/{id}/cart", auth.Authenticate(http.HandlerFunc()))
 	r.Handle("/api/order", auth.Authenticate(http.HandlerFunc(PlaceOrder)))
 	// TODO Create an admin auth middleware
