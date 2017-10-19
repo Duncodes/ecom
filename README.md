@@ -1,6 +1,6 @@
 # ecom
 
-* <bold>Ecom</bold> is a usefull ecommerce platform.
+* <bold>Ecom</bold> is a less usefull ecommerce platform.
 * It provides an API (at least thats the  goal)
 
 ## POST - /api/login
