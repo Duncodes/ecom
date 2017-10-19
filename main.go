@@ -3,9 +3,8 @@ package main
 import (
 	"flag"
 
-	"github.com/loggercode/ecom/database"
-	"github.com/loggercode/ecom/server"
-
+	"github.com/Duncodes/ecom/database"
+	"github.com/Duncodes/ecom/server"
 	_ "github.com/go-sql-driver/mysql"
 )
 

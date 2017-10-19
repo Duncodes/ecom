@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/loggercode/ecom/auth"
+	"github.com/Duncodes/ecom/auth"
 	"github.com/twinj/uuid"
 )
 

@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Duncodes/ecom/auth"
+	"github.com/Duncodes/ecom/database"
 	"github.com/gorilla/mux"
-	"github.com/loggercode/ecom/auth"
-	"github.com/loggercode/ecom/database"
 )
 
 var (
