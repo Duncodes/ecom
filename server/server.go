@@ -201,7 +201,7 @@ func StartServer() {
 	r := mux.NewRouter()
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
-	r.HandleFunc("/api", ProductsHandler).Methods("GET")
+	r.HandleFunc("/api/products", ProductsHandler).Methods("GET")
 	r.HandleFunc("/api", AddProductHandler).Methods("POST")
 	r.HandleFunc("/api/product/{productid}", ProductHandler)
 
