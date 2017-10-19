@@ -2,7 +2,7 @@
 
 * <bold>Ecom</bold> is a less usefull ecommerce platform.
 * It provides an API (at least thats the  goal)
-
+* Ensure that config details are provied
 ## POST - /api/login
 #### request  
 ```json
