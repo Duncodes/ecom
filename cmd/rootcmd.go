@@ -22,9 +22,9 @@ func loadconfig() {
 
 }
 func init() {
-	serveCmd.PersistentFlags().StringVar(&config.Config.Port, "port", "9200", "Port for the server")
+	serveCmd.PersistentFlags().StringVarP(&config.Config.Port, "port", "p", "9200", "Port for the server")
 
-	RootCmd.PersistentFlags().StringVar(&configfilepath, "config", "config.json", "Ecom Config json file")
+	RootCmd.PersistentFlags().StringVarP(&configfilepath, "config", "f", "config.json", "Ecom Config json file")
 	RootCmd.AddCommand(serveCmd)
 	RootCmd.AddCommand(version)
 
