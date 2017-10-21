@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -22,16 +21,16 @@ const (
 	ConfigKey      key = iota
 )
 
-// SignKey ...
+// SignKey key is use to sign jwt with rsa
 var SignKey []byte
 
 func init() {
 	var err error
-	SignKey, err = ioutil.ReadFile(privateKeyPath)
-	if err != nil {
-		log.Fatalln("Error reading private key")
-		return
-	}
+	//SignKey, err = ioutil.ReadFile(privateKeyPath)
+	//if err != nil {
+	//	log.Fatalln("Error reading private key")
+	//	return
+	//}
 }
 
 type JwtClaims struct {
@@ -39,7 +38,8 @@ type JwtClaims struct {
 	jwt.StandardClaims
 }
 
-// GenerateJWTTokken ...
+// GenerateJWTTokken generates a jwt web token with username as claim, and the user uuid
+// TODO add more claims
 func GenerateJWTTokken(username string, uuid string) (token string, err error) {
 	claims := JwtClaims{
 		username,
@@ -58,13 +58,13 @@ func GenerateJWTTokken(username string, uuid string) (token string, err error) {
 	return token, err
 }
 
-// HashPassword ....
+// HashPassword creates a hash of a password
 func HashPassword(password string) (hash []byte, err error) {
 	hash, err = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return
 }
 
-// CompareHash ...
+// CompareHash compares users provided password with the hash
 func CompareHash(passwordhash string, password string) (err error) {
 	err = bcrypt.CompareHashAndPassword([]byte(passwordhash), []byte(password))
 	return
@@ -75,10 +75,9 @@ func signingKeyFn(*jwt.Token) (interface{}, error) {
 
 }
 
-// Authenticate ....
+// Authenticate middleware to check if a request it Authenticated
 func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Authentication")
 		var claims JwtClaims
 		token, err := request.ParseFromRequestWithClaims(r, request.AuthorizationHeaderExtractor, &claims, signingKeyFn)
 		if err != nil {
@@ -86,7 +85,6 @@ func Authenticate(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		log.Println(claims)
 		if token.Valid {
 			newCtx := context.WithValue(r.Context(), ConfigKey, claims)
 			r = r.WithContext(newCtx)

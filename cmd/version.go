@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// version command to tell ecom version
 var version = &cobra.Command{
 	Use:   "version",
 	Short: "print the version number for ecom",

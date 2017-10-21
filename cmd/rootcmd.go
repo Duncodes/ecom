@@ -30,7 +30,7 @@ func init() {
 
 }
 
-// RootCmd ....
+// RootCmd base commnad for ecom
 var RootCmd = &cobra.Command{
 	Use:   "ecom",
 	Short: "Ecom is a ecommerce api ",
@@ -47,6 +47,7 @@ var RootCmd = &cobra.Command{
 	},
 }
 
+// serveCmd used to start server
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Starts ecom server",

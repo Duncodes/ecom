@@ -195,6 +195,10 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func CheckOut(w http.ResponseWriter, r *http.Request) {
+
+}
+
 // StartServer ...
 func StartServer(port string) {
 	log.Println(port)
@@ -212,6 +216,7 @@ func StartServer(port string) {
 	// r.Handle("/api/protected", auth.Authenticate(http.HandlerFunc(Protected)))
 	//r.Handle("/api/{id}/cart", auth.Authenticate(http.HandlerFunc()))
 	r.Handle("/api/order", auth.Authenticate(http.HandlerFunc(PlaceOrder)))
+	r.Handle("/api/checkout", auth.Authenticate(http.HandlerFunc(CheckOut)))
 	// TODO Create an admin auth middleware
 	r.Handle("/api/category", auth.Authenticate(http.HandlerFunc(CategoryHandler)))
 	log.Println("Starting server ......")
