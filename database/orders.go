@@ -32,6 +32,23 @@ func GetPayment() (p Payment, err error) {
 	return
 }
 
+func GetPayments() (p []Payment, err error) {
+	rows, err := DB.Query(`select id, uuid,paymenttype ,allowed , from payment`)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		payment := new(Payment)
+
+		if err = rows.Scan(&payment.ID, &payment.UUID, &payment.PaymentType, &payment.Allowed); err != nil {
+			return
+		}
+		p = append(p, *payment)
+	}
+	return
+}
+
 type CartItem struct {
 	ProductID int64 `json:"productid"`
 	Quantity  int   `json:"quantity"`

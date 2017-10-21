@@ -8,7 +8,6 @@
 ```json
 POST /api/login HTTP/1.1
 Content-Type: application/json
-
 {
   "username":"",
   "password":""
@@ -25,7 +24,7 @@ Content-Type: application/json
  }
  ```  
 
- ## POST - /api/register
+## POST - /api/register
 #### request
 ```json
 POST /api/register
@@ -111,15 +110,54 @@ HTTP/1.1 200 OK
       "picture": ""
     }
  }
-
  ```
 
- ## GET /api/checkout
- This is work in progress
- ```json
- POST /api/checkout
- Authentication:"jwt auth string"
- Content-Type: application/json
+## Get /api/payments
+* Gets a list of payments methods
+* No Authentication needed
+Request
+```json
+GET /api/payments HTTP/1.1
+```
+
+Response
+```json
+HTTP/1.1 200 OK
+Content-Type: application/json
+{
+  "payments_methods":[
+    {
+      "name":"",
+      "id":"",
+    }
+  ]
+}
+```
+## POST /api/order
+* Places and order  
+* Must be authenticated
+```json
+POST /api/checkout
+Authentication:"jwt auth key"
+Content-Type:application/json
+{
+  "items":[
+    {
+      "quantity":1,
+      "productid":1234,
+    }
+  ],
+  "paymentid":123,
+  "shippingadress":"",
+}
+```
+
+## GET /api/checkout
+This is work in progress
+```json
+POST /api/checkout
+Authentication:"jwt auth string"
+Content-Type: application/json
  {
   "checkout":{
     "email": "duncan.smith@example.com",

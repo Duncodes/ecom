@@ -25,7 +25,7 @@ const (
 var SignKey []byte
 
 func init() {
-	var err error
+	//var err error
 	//SignKey, err = ioutil.ReadFile(privateKeyPath)
 	//if err != nil {
 	//	log.Fatalln("Error reading private key")

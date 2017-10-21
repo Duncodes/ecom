@@ -195,6 +195,15 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func PaymentMethods(w http.ResponseWriter, r *http.Request) {
+	payments, err := database.GetPayments()
+	if err != nil {
+		return
+	}
+
+	json.NewEncoder(w).Encode(&payments)
+}
+
 func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 }
@@ -208,7 +217,7 @@ func StartServer(port string) {
 	r.HandleFunc("/api/products", ProductsHandler).Methods("GET")
 	r.HandleFunc("/api", AddProductHandler).Methods("POST")
 	r.HandleFunc("/api/product/{productid}", ProductHandler)
-
+	r.HandleFunc("/api/payments", PaymentMethods)
 	// Login
 	r.HandleFunc("/api/login", LoginHandler)
 	r.HandleFunc("/api/register", RegisterHandler)
