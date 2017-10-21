@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -65,74 +64,6 @@ func ProductHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-// LoginHandler ...
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var user database.UserCredential
-
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	fulluser, err := user.VerifyUser()
-	if err != nil {
-		w.WriteHeader(400)
-
-		response := map[string]interface{}{
-			"error": "Wrong credentials",
-		}
-
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		log.Println("Wrong login credentilas")
-		json.NewEncoder(w).Encode(response)
-		return
-	}
-
-	token, err := auth.GenerateJWTTokken(user.Username, fulluser.UUID)
-	if err != nil {
-		// TODO : handle error
-		log.Fatal(err)
-	}
-
-	response := map[string]interface{}{
-		"token": token,
-		"uuid":  fulluser.UUID,
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(response)
-}
-
-// RegisterHandler this accepts a user detail of type
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	var user database.User
-	var err error
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		log.Println(err)
-		return
-	}
-
-	if err = user.CreateUser(); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	token, err := auth.GenerateJWTTokken(user.Username, user.UUID)
-
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	tokenresponse := map[string]string{
-		"token": token,
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(tokenresponse)
-}
-
 // PlaceOrder ....
 func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	// Read user claims and get more data about the use
@@ -160,29 +91,35 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&cart)
 	if err != nil {
 		log.Println(err)
-	}
-
-	fmt.Println(cart)
-	if len(cart.Items) == 0 {
-		log.Println("Provide items to order")
+		//panic(err)
+		w.WriteHeader(400)
 		return
 	}
-	log.Println(user.ID)
+
+	// if order is empty
+	if len(cart.Items) == 0 {
+		log.Println("Provide items to order")
+		w.WriteHeader(400)
+		return
+	}
+
 	order, err := database.AddOrder(user.ID, cart)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(400)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	u, _ := json.Marshal(order)
+	u, _ := json.Marshal(map[string]interface{}{"orders": order})
 	w.Write(u)
+
 }
 
 // CategoryHandler ....
 func CategoryHandler(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method == "POST" {
-		// just return all categories
 		var category database.Category
 		if err := json.NewDecoder(r.Body).Decode(&category); err != nil {
 			log.Println(err)
@@ -193,15 +130,27 @@ func CategoryHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	categories, err := database.GetCategories()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{"categories": categories})
 }
 
 func PaymentMethods(w http.ResponseWriter, r *http.Request) {
 	payments, err := database.GetPayments()
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	json.NewEncoder(w).Encode(&payments)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	json.NewEncoder(w).Encode(map[string]interface{}{"payaments": &payments})
 }
 
 func CheckOut(w http.ResponseWriter, r *http.Request) {

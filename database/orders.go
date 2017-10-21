@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"time"
 
 	"github.com/twinj/uuid"
@@ -21,19 +22,19 @@ type Order struct {
 }
 
 type Payment struct {
-	ID          int64 `json:"id"`
-	UUID        int64 `json:"uuid"`
-	PaymentType int64 `json:"paymenttype"`
-	Allowed     bool  `json:"allowed"`
+	ID          int64  `json:"id"`
+	UUID        string `json:"uuid"`
+	PaymentType string `json:"paymenttype"`
+	Allowed     bool   `json:"allowed"`
 }
 
-func GetPayment() (p Payment, err error) {
+func GetPayment(id string) (p Payment, err error) {
 
 	return
 }
 
 func GetPayments() (p []Payment, err error) {
-	rows, err := DB.Query(`select id, uuid,paymenttype ,allowed , from payment`)
+	rows, err := DB.Query(`select id, uuid,paymenttype ,allowed from payment`)
 	if err != nil {
 		return
 	}
@@ -61,18 +62,27 @@ type Cart struct {
 }
 
 func AddOrder(customerid int64, cart Cart) (orders []Order, err error) {
+
+	// DEBUG
+	log.Println(customerid)
 	// loop all the elemets of the cart and write them to aorder
 	for _, item := range cart.Items {
 		uuid4 := uuid.NewV4()
 		_, err = DB.Exec(`insert into orders(uuid , customerid, paymentid,
 				shippingadress ,quantity , productid) values(?,?,?,?,?,?)`, uuid4,
-			1, cart.PaymentMethod, cart.ShippingAdress, item.Quantity, item.ProductID)
+			customerid, cart.PaymentMethod, cart.ShippingAdress, item.Quantity, item.ProductID)
 		if err != nil {
 			return
 		}
 
 	}
-	rows, err := DB.Query(`select id, uuid,productid ,customerid,paymentid,shippingadress,price,quantity  from orders where customerid = ?`, 1)
+
+	orders, err = GetUserOrders(customerid)
+	return
+}
+
+func GetUserOrders(userid int64) (orders []Order, err error) {
+	rows, err := DB.Query(`select id, uuid,productid ,customerid,paymentid,shippingadress,price,quantity  from orders where customerid = ? and fulfilled=false`, userid)
 	if err != nil {
 		return
 	}
@@ -86,4 +96,5 @@ func AddOrder(customerid int64, cart Cart) (orders []Order, err error) {
 		orders = append(orders, *order)
 	}
 	return
+
 }

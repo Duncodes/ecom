@@ -28,7 +28,7 @@ type Product struct {
 // Category ..
 type Category struct {
 	ID          int64  `json:"id"`
-	UUID        int64  `json:"uuid"`
+	UUID        string `json:"uuid"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Picture     string `json:"picture"`

@@ -47,8 +47,8 @@ func (user *User) CreateUser() (err error) {
 
 func GetUserByUUID(uuid string) (User, error) {
 	var user User
-	err := DB.QueryRow(`select uuid, username, location, phonenumber,
-					password_hash from users where uuid = ?`, uuid).Scan(&user.UUID,
+	err := DB.QueryRow(`select id, uuid, username, location, phonenumber,
+					password_hash from users where uuid = ?`, uuid).Scan(&user.ID, &user.UUID,
 		&user.Username, &user.Location, &user.PhoneNumber, &user.PasswordHash)
 
 	return user, err
