@@ -157,6 +157,27 @@ func CheckOut(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func GetUserOrders(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value(auth.ConfigKey).(auth.JwtClaims)
+	user, err := database.GetUserByUUID(claims.StandardClaims.Id)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	orders, err := database.GetUserOrders(user.ID)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	json.NewEncoder(w).Encode(map[string]interface{}{"orders": &orders})
+}
+
 // StartServer ...
 func StartServer(port string) {
 	log.Println(port)
@@ -177,6 +198,7 @@ func StartServer(port string) {
 	r.Handle("/api/checkout", auth.Authenticate(http.HandlerFunc(CheckOut)))
 	// TODO Create an admin auth middleware
 	r.Handle("/api/category", auth.Authenticate(http.HandlerFunc(CategoryHandler)))
+	r.Handle("/api/orders", auth.Authenticate(http.HandlerFunc(GetUserOrders)))
 	log.Println("Starting server ......")
 	srv := &http.Server{
 		Handler: r,

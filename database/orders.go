@@ -8,17 +8,17 @@ import (
 )
 
 type Order struct {
-	ID             int64     `json:"id"`
-	UUID           string    `json:"uuid"`
-	ProductID      int64     `json:"productid"`
-	CustomerID     int64     `json:"customer"`
-	PaymentID      int64     `json:"payment"`
-	ShippingAdress string    `json:"shippingadress"`
-	Paid           bool      `json:"paid"`
-	Fulfilled      bool      `json:"fulfilled"`
-	TimePlaced     time.Time `json:"timestamp"`
-	Price          float64   `json:"price"`
-	Quantity       int       `json:"quantity"`
+	ID             int64          `json:"id"`
+	UUID           string         `json:"uuid"`
+	ProductID      int64          `json:"productid"`
+	CustomerID     int64          `json:"customer"`
+	PaymentID      int64          `json:"payment"`
+	ShippingAdress ShippingAdress `json:"shippingadress"`
+	Paid           bool           `json:"paid"`
+	Fulfilled      bool           `json:"fulfilled"`
+	TimePlaced     time.Time      `json:"timestamp"`
+	Price          float64        `json:"price"`
+	Quantity       int            `json:"quantity"`
 }
 
 type Payment struct {
@@ -26,6 +26,12 @@ type Payment struct {
 	UUID        string `json:"uuid"`
 	PaymentType string `json:"paymenttype"`
 	Allowed     bool   `json:"allowed"`
+}
+
+type ShippingAdress struct {
+	Contry string `json:"contry"`
+	Zip    string `json:"zip"`
+	Adress string `json:"adress"`
 }
 
 func GetPayment(id string) (p Payment, err error) {
@@ -56,9 +62,9 @@ type CartItem struct {
 }
 
 type Cart struct {
-	Items          []CartItem `json:"items"`
-	PaymentMethod  int        `json:"paymentid"`
-	ShippingAdress string     `json:"shippingadress"`
+	Items          []CartItem     `json:"items"`
+	PaymentMethod  int            `json:"paymentid"`
+	ShippingAdress ShippingAdress `json:"shippingadress"`
 }
 
 func AddOrder(customerid int64, cart Cart) (orders []Order, err error) {
@@ -69,8 +75,8 @@ func AddOrder(customerid int64, cart Cart) (orders []Order, err error) {
 	for _, item := range cart.Items {
 		uuid4 := uuid.NewV4()
 		_, err = DB.Exec(`insert into orders(uuid , customerid, paymentid,
-				shippingadress ,quantity , productid) values(?,?,?,?,?,?)`, uuid4,
-			customerid, cart.PaymentMethod, cart.ShippingAdress, item.Quantity, item.ProductID)
+				shippingadress, shippingcontry, shippingzip ,quantity , productid) values(?,?,?,?,?,?)`, uuid4,
+			customerid, cart.PaymentMethod, cart.ShippingAdress.Adress, cart.ShippingAdress.Contry, cart.ShippingAdress.Zip, item.Quantity, item.ProductID)
 		if err != nil {
 			return
 		}
@@ -82,7 +88,7 @@ func AddOrder(customerid int64, cart Cart) (orders []Order, err error) {
 }
 
 func GetUserOrders(userid int64) (orders []Order, err error) {
-	rows, err := DB.Query(`select id, uuid,productid ,customerid,paymentid,shippingadress,price,quantity  from orders where customerid = ? and fulfilled=false`, userid)
+	rows, err := DB.Query(`select id, uuid,productid ,customerid,paymentid,shippingadress, shippingcontry, shippingzip,price,quantity  from orders where customerid = ? and fulfilled=false`, userid)
 	if err != nil {
 		return
 	}
@@ -90,7 +96,7 @@ func GetUserOrders(userid int64) (orders []Order, err error) {
 	for rows.Next() {
 		order := new(Order)
 
-		if err = rows.Scan(&order.ID, &order.UUID, &order.ProductID, &order.CustomerID, &order.PaymentID, &order.ShippingAdress, &order.Price, &order.Quantity); err != nil {
+		if err = rows.Scan(&order.ID, &order.UUID, &order.ProductID, &order.CustomerID, &order.PaymentID, &order.ShippingAdress.Adress, &order.ShippingAdress.Contry, &order.ShippingAdress.Zip, &order.Price, &order.Quantity); err != nil {
 			return
 		}
 		orders = append(orders, *order)

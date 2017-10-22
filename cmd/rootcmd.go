@@ -27,7 +27,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&configfilepath, "config", "f", "config.json", "Ecom Config json file")
 	RootCmd.AddCommand(serveCmd)
 	RootCmd.AddCommand(version)
-
+	RootCmd.AddCommand(dbcmd)
 }
 
 // RootCmd base commnad for ecom
