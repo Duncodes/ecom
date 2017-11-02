@@ -18,6 +18,6 @@ var drop = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO run remove database command
-		database.DropTables()
+		//database.DropTables()
 	},
 }

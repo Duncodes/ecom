@@ -29,12 +29,19 @@ func InitDB() {
 	}
 	// Create producs table
 	_, err = DB.Exec(`create table if not exists products(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-					uuid varchar(100) NOT NULL unique , name varchar(255) unique, photoid varchar(255),
+					uuid varchar(100) NOT NULL unique , name varchar(255) unique,
 					description varchar(255), price decimal default 0.0 , productstock decimal default 0.0,
 					update_date datetime default CURRENT_TIMESTAMP, quantitypreunit int default 1,
 					categoryid int NOT NULL,FOREIGN KEY (categoryid) REFERENCES category (id));`)
 	if err != nil {
 		log.Fatal("Error creating table : ", err)
+	}
+
+	// create a product image table
+	_, err = DB.Exec(`create table if not exists productimage(id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+						uuid varchar(100) NOT NULL unique,imageurl varchar(100) NOT NULL,productid int , FOREIGN KEY(productid) REFERENCES products(id));`)
+	if err != nil {
+		log.Fatal(err)
 	}
 	// users ...
 	_, err = DB.Exec(`create table if not exists users(id int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
@@ -66,10 +73,4 @@ func InitDB() {
 	if err != nil {
 		log.Fatal("Error creating table : ", err)
 	}
-}
-
-func DropTables() error {
-	_, err := Exec()
-
-	return err
 }

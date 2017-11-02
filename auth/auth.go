@@ -39,7 +39,7 @@ type JwtClaims struct {
 }
 
 // GenerateJWTTokken generates a jwt web token with username as claim, and the user uuid
-// TODO add more claims
+// TODO add more claims , roles claims
 func GenerateJWTTokken(username string, uuid string) (token string, err error) {
 	claims := JwtClaims{
 		username,
